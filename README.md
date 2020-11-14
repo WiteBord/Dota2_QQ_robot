@@ -3,3 +3,8 @@
 整个流程为**MiraiOK**收到消息，通过**cqhttp-mirai插件**发给**nonebot**处理，处理完成后将结果通过**cqhttp-mirai插件**传给**MiraiOK**进行发送，机器人的各种功能由**nonebot**来负责实现
 ## pythonbot/plugins 文件夹内文件为实现各种功能的代码,各种功能实现所调用的api详见[nonebot开发文档](https://docs.nonebot.dev/)
 **nonebot**启动方式：在cmd界面输入`python bot.py`
+
+## 插件中用到的各种api：
++ 天气相关：[openweather](https://openweathermap.org/api/)
++ dota2相关：[opendota](https://docs.opendota.com/)
++ steam相关：[steam_web_api](https://developer.valvesoftware.com/wiki/Steam_Web_API#GetGlobalAchievementPercentagesForApp_.28v0001.29)
