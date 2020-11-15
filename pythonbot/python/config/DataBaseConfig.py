@@ -25,7 +25,8 @@ def sshConn():
         db=MYSQL_DATABASE,
         port=server.local_bind_port)
     cursor = myConfig.cursor()
-    return {'cursor': cursor, 'server': server}
+
+    return {'cursor': cursor, 'server': server,'conn':myConfig}
 
 
 if __name__ == '__main__':
