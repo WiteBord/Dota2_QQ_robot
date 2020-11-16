@@ -1,12 +1,17 @@
-from pythonbot.python.config import DataBaseConfig
+from pythonbot.python.config.DataBaseConfig import DataBaseConfig
 
 
 def insert(sql,values):
-    cursor = DataBaseConfig.sshConn().get('cursor')
-    server = DataBaseConfig.sshConn().get('server')
-    conn = DataBaseConfig.sshConn().get('conn')
-    cursor.executemany(sql,values)
-    conn.commit()
-    cursor.close()
-    conn.close()
-    server.close()
+    cursor = DataBaseConfig.myConfig.cursor()
+    try:
+        cursor.executemany(sql, values)
+        DataBaseConfig.myConfig.commit()
+        return 1
+    except Exception as e:
+        print(e)
+        DataBaseConfig.myConfig.rollback()
+        return -1
+    finally:
+        cursor.close()
+        DataBaseConfig.myConfig.close()
+        DataBaseConfig.server.close()

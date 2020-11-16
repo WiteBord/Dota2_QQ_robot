@@ -1,11 +1,17 @@
 # coding=utf-8
 
 import json
+import time
+
 import pandas as pd
 import requests
 from numpy import nan
+from twisted.python.runtime import seconds
 
 from pythonbot.python.plugins.contents import PERSONID
+from pythonbot.python.plugins.discord_webhook import analyse_match_win_or_lose
+from pythonbot.python.scheduleTask.SaveData import insert
+from pythonbot.python.utils.TimeUtils import timeStamp
 
 playerIdList = PERSONID
 testID = 442726378
@@ -16,9 +22,59 @@ def queryHistoryMatchData(playerId, mode):
     url = "https://api.opendota.com/api/players/{}/matches?game_mode={}".format(playerId, mode)
     r = requests.get(url)
     if r.ok:
+        ak = list()
         result = json.loads(r.content.decode('utf-8'))
+        for i in result:
+            match_id = i['match_id']
+            player_slot = i['player_slot']
+            m, s = divmod(i['duration'], 60)
+            durationTime = "%02d:%02d" % (m, s)
+            start_time = timeStamp(i['start_time'])
+            if i['radiant_win'] == True:
+                radiant_win = 1
+            else:
+                radiant_win = 0
+            if (analyse_match_win_or_lose(i) == True):
+                is_win = 1
+            else:
+                is_win = 0
+            game_mode = i['game_mode']
+            duration = i['duration']
+            lobby_type = i['lobby_type']
+            hero_id = i['hero_id']
+            start_timeStamp = i['start_time'] * 1000
+            version = i['version']
+            kills = i['kills']
+            deaths = i['deaths']
+            assists = i['assists']
+            skill = i['skill']
+            leaver_status = i['leaver_status']
+            party_size = i['party_size']
+            playerId = testID
 
-        return result
+            temp = (
+                match_id,
+                player_slot,
+                radiant_win,
+                game_mode,
+                duration,
+                lobby_type,
+                hero_id,
+                start_time,
+                version,
+                kills,
+                deaths,
+                assists,
+                skill,
+                leaver_status,
+                party_size,
+                playerId,
+                durationTime,
+                is_win,
+                start_timeStamp
+            )
+            ak.append(temp)
+        return ak
     else:
         print('get uid: {} matches fail, status code: {}'.format(playerId, r.status_code))
 
@@ -34,10 +90,18 @@ def matchDetails(matchid):
         print('get match: {} matches fail, status code: {}'.format(matchid, r.status_code))
 
 
-def insertMatchData(matchData):
-    sql='INSERT INTO `dotaData`.`dota_match_list`(`match_id`, `player_slot`, `radiant_win`, `game_mode`, `duration`, `lobby_type`, `hero_id`, `start_time`, `version`, `kills`, `deaths`, `assists`, `skill`, `leaver_status`, `party_size`, `playerId`) ' \
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    pass
+def insertMatchData():
+    sql = 'INSERT INTO `dotaData`.`dota_match_list`(`match_id`, `player_slot`, `radiant_win`, `game_mode`, `duration`, `lobby_type`, `hero_id`, `start_time`, `version`, `kills`, `deaths`, `assists`, `skill`, `leaver_status`, `party_size`, `playerId`,`durationTime`,`is_win`,`start_timeStamp`) ' \
+          'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s)'
+    a = []
+    for i in game_mode:
+        a += (queryHistoryMatchData(testID, i))
+    result = insert(sql, a)
+
+    if (result == 1):
+        print("比赛数据插入成功")
+    else:
+        print("比赛数据插入失败")
 
 
 def insertDailyData():
@@ -59,11 +123,7 @@ def getPlayerName(playerId):
 
 
 if __name__ == '__main__':
-    a=[]
-    for i in game_mode:
-        a+=(queryHistoryMatchData(testID,i))
-    print(a[0])
-
+    insertMatchData()
 
     # players = matchDetails(5698007640)[0].keys()
     # purchase = matchDetails(5698007640)[0].get("purchase")
