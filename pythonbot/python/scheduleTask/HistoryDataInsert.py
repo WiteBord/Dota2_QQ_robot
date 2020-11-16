@@ -4,6 +4,7 @@ import json
 
 import requests
 
+from pythonbot.python.config import DataBaseConfig
 from pythonbot.python.plugins.contents import PERSONID
 
 from pythonbot.python.utils.SqlUtils import insert
@@ -14,24 +15,32 @@ game_mode = [1, 3, 22]
 
 
 def insertMatchData(playerId):
-    sql = 'INSERT INTO `dotaData`.`dota_match_list`(`match_id`, `player_slot`, `radiant_win`, `game_mode`, `duration`, `lobby_type`, `hero_id`, `start_time`, `version`, `kills`, `deaths`, `assists`, `skill`, `leaver_status`, `party_size`, `playerId`,`durationTime`,`is_win`,`start_timeStamp`) ' \
-          'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s)'
+    sql = 'INSERT INTO `dotaData`.`dota_match_list`(`match_id`, `player_slot`, `radiant_win`, `game_mode`, `duration`, `lobby_type`, `hero_id`, `start_time`, `version`, `kills`, `deaths`, `assists`, `skill`, `leaver_status`, `party_size`, `playerId`,`durationTime`,`is_win`,`start_timeStamp`,`playerId_matchId`) ' \
+          'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s)'
     a = []
     for i in game_mode:
         from pythonbot.python.utils.OfficialDataUtils import queryHistoryMatchData
         a += (queryHistoryMatchData(playerId, i))
     result = insert(sql, a)
     if (result == 1):
-        print("比赛数据插入成功")
+        print("{}比赛数据插入成功".format(playerId))
     else:
-        print("比赛数据插入失败")
+        print("{}比赛数据插入失败".format(playerId))
+
 
 def insertDailyData():
     pass
 
 
 if __name__ == '__main__':
-    insertMatchData(testID)
+    # insertMatchData(testID)
+
+    # 2020.11.16
+    for i in playerIdList:
+        print("开始插入玩家%d的数据" % i)
+        insertMatchData(i)
+        print("玩家%d的数据插入结束" % i)
+    DataBaseConfig.DataBaseConfig.server.close()
 
     # players = matchDetails(5698007640)[0].keys()
     # purchase = matchDetails(5698007640)[0].get("purchase")

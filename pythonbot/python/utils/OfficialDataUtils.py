@@ -52,7 +52,7 @@ def queryHistoryMatchData(playerId, mode):
             leaver_status = i['leaver_status']
             party_size = i['party_size']
             playerId = playerId
-
+            playerId_matchId = "{}_{}".format(playerId, match_id)
             temp = (
                 match_id,
                 player_slot,
@@ -72,7 +72,8 @@ def queryHistoryMatchData(playerId, mode):
                 playerId,
                 durationTime,
                 is_win,
-                start_timeStamp
+                start_timeStamp,
+                playerId_matchId
             )
             ak.append(temp)
         return ak
