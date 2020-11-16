@@ -15,3 +15,10 @@ def insert(sql,values):
         cursor.close()
         DataBaseConfig.myConfig.close()
         DataBaseConfig.server.close()
+
+
+def select(sql):
+    cursor = DataBaseConfig.myConfig.cursor()
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    return result

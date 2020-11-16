@@ -1,16 +1,12 @@
 # coding=utf-8
 
 import json
-import time
 
-import pandas as pd
 import requests
-from numpy import nan
-from twisted.python.runtime import seconds
 
 from pythonbot.python.plugins.contents import PERSONID
 from pythonbot.python.plugins.discord_webhook import analyse_match_win_or_lose
-from pythonbot.python.scheduleTask.SaveData import insert
+from pythonbot.python.utils.SqlUtils import insert
 from pythonbot.python.utils.TimeUtils import timeStamp
 
 playerIdList = PERSONID
@@ -97,7 +93,6 @@ def insertMatchData():
     for i in game_mode:
         a += (queryHistoryMatchData(testID, i))
     result = insert(sql, a)
-
     if (result == 1):
         print("比赛数据插入成功")
     else:
